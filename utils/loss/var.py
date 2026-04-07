@@ -4,11 +4,8 @@ from utils.loss.template import Loss
 from utils.enums.data import Data
 
 class VaR(Loss):
-    def __init__(self, name, to_minimise = True):
+    def __init__(self, name: str, alpha: float = 0.05, to_minimise: bool = False):
         super().__init__(name, to_minimise)
-
-    def __init__(self, name: str, alpha: float = 0.05):
-        super().__init__(name)
         self.alpha = alpha
 
     def evaluate(self, weights: np.array, data_package: dict):
