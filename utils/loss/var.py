@@ -4,6 +4,8 @@ from utils.loss.template import Loss
 from utils.enums.data import Data
 
 class VaR(Loss):
+    def __init__(self, name, to_minimise = True):
+        super().__init__(name, to_minimise)
 
     def __init__(self, name: str, alpha: float = 0.05):
         super().__init__(name)

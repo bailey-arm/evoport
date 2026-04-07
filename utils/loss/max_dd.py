@@ -4,6 +4,8 @@ from utils.loss.template import Loss
 from utils.enums.data import Data
 
 class MaxDD(Loss):
+    def __init__(self, name, to_minimise = False): #False as we want it to be as close to 0 as possible (DD <= 0) 
+        super().__init__(name, to_minimise)
 
     def evaluate(self, weights: np.array, data_package: dict):
         returns = data_package[Data.Returns]

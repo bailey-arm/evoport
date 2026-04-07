@@ -3,8 +3,9 @@ import pandas as pd
 from abc import ABC, abstractmethod
 
 class Loss(ABC):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, to_minimise: bool = True) -> None:
         self.name = name
+        self.to_minimise = to_minimise
 
     @abstractmethod
     def evaluate(self, weights: np.array, data_package: dict):
@@ -13,10 +14,6 @@ class Loss(ABC):
     @abstractmethod
     def data_needed(self) -> list:
         pass
-    
-    @abstractmethod
-    def to_minimise(self) -> bool:
-        pass 
 
 class ListLoss:
     def __init__(self, losses: list[Loss]) -> None:

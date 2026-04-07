@@ -5,8 +5,11 @@ from utils.enums.data import Data
 
 class CVaR(Loss):
 
-    def __init__(self, name: str, alpha: float = 0.05):
-        super().__init__(name)
+    def __init__(self, name: str, alpha: float = 0.05, to_minimize: bool = True):
+        super().__init__(
+            name = name, 
+            to_minimise = self.to_minimise
+            )
         self.alpha = alpha
 
     def evaluate(self, weights: np.array, data_package: dict):

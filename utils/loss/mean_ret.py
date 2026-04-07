@@ -6,6 +6,9 @@ from utils.enums.data import Data
 
 class MeanRet(Loss):
 
+    def __init__(self, name, to_minimise = False):
+        super().__init__(name, to_minimise)
+
     def evaluate(self, weights: np.array, data_package: dict):
         mean_ret = data_package[Data.MeanRet]
         return (mean_ret * weights).sum(axis = 1)
