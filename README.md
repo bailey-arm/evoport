@@ -36,9 +36,39 @@ See [`examples/populations.ipynb`](examples/populations.ipynb) for a full walkth
 | Component | Description |
 |---|---|
 | **Populations** | `LongOnlyBC` (budget-constrained, fully invested) and `LongOnlyBR` (budget-relaxed, partial cash) |
-| **Objectives** | Sharpe, Sortino, Mean Return, Max Drawdown, CVaR, VaR, Win Rate, Win/Loss |
+| **Objectives** | Sharpe, Sortino, Mean Return, Max Drawdown, CVaR, VaR, Win Rate, Win/Loss, Annualised Downside Variance |
 | **Domination** | Pareto, Epsilon, Cone, Lorenz |
 | **Breeding** | Gaussian perturbation with automatic projection to feasibility |
+| **Evolution** | `Evolution` class wrapping the generational loop: evaluate, select frontier, breed, repeat |
+| **Backtest** | Walk-forward backtesting with expanding or rolling windows and pluggable portfolio selection criteria |
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Backtest["Backtest (walk-forward)"]
+        direction TB
+        RET[Return Series] --> WINDOW[Train / OOS Split]
+        WINDOW -->|in-sample| EVO
+        subgraph EVO["Evolution Loop"]
+            direction TB
+            POP["Population\n(LongOnlyBC / LongOnlyBR)"] -->|weights| EVAL["ListLoss\n(Sharpe, CVaR, ...)"]
+            EVAL -->|objectives| DOM["Domination\n(Pareto / Epsilon / Cone / Lorenz)"]
+            DOM -->|frontier| BREED[Breed & Project]
+            BREED -->|next gen| POP
+        end
+        EVO -->|frontier| CRIT["Criterion\n(aggressive / defensive /\nsharpe / column / callable)"]
+        CRIT -->|chosen weights| OOS["Out-of-Sample\nPortfolio Returns"]
+        WINDOW -->|out-of-sample| OOS
+    end
+
+    OOS --> RESULT[BacktestResult\ncumulative returns\nrebalance history]
+
+    style Backtest fill:#1a1a2e,stroke:#e94560,color:#eee
+    style EVO fill:#16213e,stroke:#0f3460,color:#eee
+    style CRIT fill:#0f3460,stroke:#e94560,color:#eee
+    style RESULT fill:#533483,stroke:#e94560,color:#eee
+```
 
 ## How It Works
 
@@ -96,6 +126,34 @@ assets, with smooth variation along the frontier.
 
 ![Weight Heatmap](images/weight_heatmap.png)
 
+## Backtest & Selection Criteria
+
+The `Backtest` class runs a walk-forward backtest over a return series. At each
+rebalance point it trains a fresh evolutionary optimisation on the in-sample window,
+then selects a single portfolio from the resulting frontier using a **criterion**:
+
+| Criterion | Behaviour |
+|---|---|
+| `'sharpe'` | Pick the frontier portfolio with the best Sharpe ratio (default) |
+| `'aggressive'` | Maximise expected return — selects the highest-return end of the frontier |
+| `'defensive'` | Minimise portfolio variance (w'Σw), falling back to lowest weight concentration |
+| `'<column>'` | Optimise any objective column by name, respecting its minimax direction |
+| `callable` | Pass a function `(EvolutionResult) -> np.ndarray` for fully custom selection |
+
+```python
+from utils.backtest import Backtest
+
+bt = Backtest(
+    population_cls=LongOnlyBC,
+    population_kwargs={'problem_dimension': 5, 'population_size': 50_000},
+    list_loss=losses,
+    domination_fn=epsilon.epsilon_dominant,
+    n_generations=10,
+    criterion='defensive',   # or 'aggressive', 'sharpe', a column name, or a callable
+)
+result = bt.run(returns, train_window=252, step_size=21, expanding=True)
+```
+
 ## Project Structure
 
 ```
@@ -108,6 +166,8 @@ evoport/
     enums/           # Data enums
     loss/            # Objective functions (Sharpe, CVaR, etc.)
     populations/     # Population sampling and breeding
+    evolution.py     # Generational evolution loop
+    backtest.py      # Walk-forward backtesting engine
 ```
 
 ## Dependencies
