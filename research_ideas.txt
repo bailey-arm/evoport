@@ -1,0 +1,43 @@
+Research Ideas for evoport
+==========================
+
+Evolutionary Algorithm Enhancements
+------------------------------------
+- NSGA-II / NSGA-III: crowding distance and reference-point selection for better-spread frontiers
+- Crossover operators: BLX-alpha or SBX crossover between two parents instead of single-parent perturbation
+- Adaptive mutation: decay noise_scale over generations or make it self-adaptive
+- CMA-ES / MO-CMA-ES: learn covariance structure of weight-space for smarter search
+
+Portfolio Theory Extensions
+----------------------------
+- Transaction costs & turnover penalties as an objective
+- Cardinality constraints: limit number of non-zero weight assets (sparse portfolios)
+- Short selling: LongShort population class with net exposure / gross leverage bounds
+- Risk parity / equal risk contribution objective
+- Black-Litterman views: incorporate subjective return forecasts as a prior
+
+Risk & Objective Functions
+---------------------------
+- Conditional Drawdown at Risk (CDaR)
+- Ulcer Index (drawdown-duration-weighted risk)
+- Higher moments: skewness and kurtosis objectives
+- Regime-aware objectives: condition metrics on HMM-detected market regimes
+
+Backtesting & Evaluation
+--------------------------
+- Benchmark-relative metrics: tracking error, information ratio, active share
+- Rebalance frequency analysis: daily vs weekly vs monthly
+- Expanding vs rolling window systematic comparison
+- Robustness testing: bootstrap / Monte Carlo resampling of returns
+
+Domination & Selection
+-----------------------
+- Hypervolume indicator for frontier quality measurement
+- Tournament selection with crowding distance for smoother pressure
+- Decision-making under uncertainty: stochastic dominance, minimax regret
+
+Data & Assets
+--------------
+- Alternative asset classes: crypto, commodities, bonds
+- Factor-based returns: optimize over Fama-French factors
+- Correlated asset generation: add correlation structure to synthetic data
